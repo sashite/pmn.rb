@@ -10,8 +10,6 @@ Gem::Specification.new do |spec|
   spec.homepage      = 'https://github.com/sashite/portable_move_notation.rb'
   spec.license       = 'MIT'
 
-  spec.metadata['allowed_push_host'] = 'https://gems.sashite.com'
-
   spec.files = `git ls-files -z`.split("\x0").reject do |f|
     f.match(%r{^(test)/})
   end
