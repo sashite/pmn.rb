@@ -4,11 +4,7 @@ require 'bundler/gem_tasks'
 require 'rake/testtask'
 require 'rubocop/rake_task'
 
-require 'byebug'
-
-RuboCop::RakeTask.new do |task|
-  task.requires << 'rubocop-performance'
-end
+RuboCop::RakeTask.new
 
 Rake::TestTask.new do |t|
   t.pattern = 'test/**/*.rb'
