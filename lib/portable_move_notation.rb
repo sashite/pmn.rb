@@ -3,13 +3,13 @@
 # Portable Move Notation module
 module PortableMoveNotation
   def self.dump(*moves)
-    Dump.call(*moves)
+    Dumper.call(*moves)
   end
 
-  def self.load(pmn_string)
-    Load.call(pmn_string)
+  def self.parse(pmn_string)
+    Parser.call(pmn_string)
   end
 end
 
-require_relative 'portable_move_notation/dump'
-require_relative 'portable_move_notation/load'
+require_relative 'portable_move_notation/dumper'
+require_relative 'portable_move_notation/parser'

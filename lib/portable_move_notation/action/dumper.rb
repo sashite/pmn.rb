@@ -2,7 +2,7 @@
 
 module PortableMoveNotation
   module Action
-    class Dump
+    class Dumper
       def self.call(*unserialized_actions)
         unserialized_actions.map { |params| new(*params).call }.join(';')
       end
@@ -28,13 +28,15 @@ module PortableMoveNotation
       end
 
       def call
-        arr = if piece_hand.nil?
-                [src_square, dst_square, piece_name]
-              else
-                [src_square, dst_square, piece_name, piece_hand]
-              end
+        action_items.join(',')
+      end
 
-        arr.join(',')
+      private
+
+      def action_items
+        return [src_square, dst_square, piece_name] if piece_hand.nil?
+
+        [src_square, dst_square, piece_name, piece_hand]
       end
     end
   end

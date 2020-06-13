@@ -5,7 +5,7 @@ Gem::Specification.new do |spec|
   spec.version      = File.read('VERSION.semver')
   spec.author       = 'Cyril Kato'
   spec.email        = 'contact@cyril.email'
-  spec.description  = 'A Ruby interface for data serialization in PMN format.'
+  spec.description  = 'A Ruby interface for data serialization in PMN (Portable Move Notation) format.'
   spec.summary      = 'Data serialization in PMN format.'
   spec.homepage     = 'https://developer.sashite.com/specs/portable-move-notation'
   spec.license      = 'MIT'

@@ -2,9 +2,9 @@
 
 module PortableMoveNotation
   module Action
-    class Load
+    class Parser
       def self.call(serialized_actions)
-        serialized_actions.split(';').map do |serialized_action|
+        serialized_actions.split(';').flat_map do |serialized_action|
           new(serialized_action).call
         end
       end
