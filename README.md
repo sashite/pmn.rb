@@ -25,56 +25,48 @@ Working with PMN can be very simple, for example:
 ```ruby
 require 'portable_move_notation'
 
-# Parse a PMN string
-
-PortableMoveNotation.parse('52,36,C:P.12,28,c:p.53,37,C:P') # => [[52, 36, 'C:P', nil], [12, 28, 'c:p', nil], [53, 37, 'C:P', nil]]
-
-# Emit some PMN
+# Emit a PMN string
 
 some_moves = [
-  [52, 36, 'C:P', nil],
-  [12, 28, 'c:p', nil],
-  [53, 37, 'C:P', nil]
+  [52, 36, '♙', nil],
+  [12, 28, '♟', nil],
+  [53, 37, '♙', nil]
 ]
 
-PortableMoveNotation.dump(*some_moves) # => '52,36,C:P.12,28,c:p.53,37,C:P'
+PortableMoveNotation.dump(*some_moves) # => "52,36,♙.12,28,♟.53,37,♙"
+
+# Parse a PMN string
+
+PortableMoveNotation.parse('52,36,♙.12,28,♟.53,37,♙') # => [[52, 36, "♙", nil], [12, 28, "♟", nil], [53, 37, "♙", nil]]
 ```
 
-### Other examples
-
-#### Castling on kingside
+## Examples
 
 ```ruby
-PortableMoveNotation.parse('60,62,C:-K;63,61,C:R') # => [[60, 62, 'C:-K', nil, 63, 61, 'C:R', nil]]
-PortableMoveNotation.dump(*[[[60, 62, 'C:-K', nil], [63, 61, 'C:R', nil]]]) # => '60,62,C:-K;63,61,C:R'
-```
+# Black castles on king-side
 
-#### Promoting a chess pawn into a knight
+PortableMoveNotation.dump([60, 62, '♔', nil, 63, 61, '♖', nil]) # => "60,62,♔;63,61,♖"
+PortableMoveNotation.parse('60,62,♔;63,61,♖') # => [[60, 62, "♔", nil, 63, 61, "♖", nil]]
 
-```ruby
-PortableMoveNotation.parse('12,4,C:P,C:N') # => [[12, 4, 'C:P', 'C:N']]
-PortableMoveNotation.dump(*[[[12, 4, 'C:P', 'C:N']]]) # => '12,4,C:P,C:N'
-```
+# Promoting a chess pawn into a knight
 
-#### Promoting a shogi pawn
+PortableMoveNotation.dump([12, 4, '♘', nil]) # => "12,4,♘"
+PortableMoveNotation.parse('12,4,♘') # => [[12, 4, "♘", nil]]
 
-```ruby
-PortableMoveNotation.parse('33,24,S:P,S:+P') # => [[33, 24, 'S:P', 'S:+P']]
-PortableMoveNotation.dump(*[[[33, 24, 'S:P', 'S:+P']]]) # => '33,24,S:P,S:+P'
-```
+# Capturing a rook and promoting a shogi pawn
 
-#### Dropping a shogi pawn
+PortableMoveNotation.dump([33, 24, '+P', 'R']) # => "33,24,+P,R"
+PortableMoveNotation.parse('33,24,+P,R') # => [[33, 24, "+P", "R"]]
 
-```ruby
-PortableMoveNotation.parse('*,42,S:P') # => [[nil, 42, 'S:P', nil]]
-PortableMoveNotation.dump(*[[[nil, 42, 'S:P', nil]]]) # => '*,42,S:P'
-```
+# Dropping a shogi pawn
 
-#### Capturing a white chess pawn en passant
+PortableMoveNotation.dump([nil, 42, 'P', nil]) # => "*,42,P"
+PortableMoveNotation.parse('*,42,P') # => [[nil, 42, "P", nil]]
 
-```ruby
-PortableMoveNotation.parse('48,32,C:P.33,32,c:p;32,40,c:p') # => [[48, 32, 'C:P', nil], [33, 32, 'c:p', nil, 32, 40, 'c:p', nil]]
-PortableMoveNotation.dump(*[[[48, 32, 'C:P', nil]], [[33, 32, 'c:p', nil], [32, 40, 'c:p', nil]]]) # => '48,32,C:P.33,32,c:p;32,40,c:p'
+# Capturing a white chess pawn en passant
+
+PortableMoveNotation.dump([48, 32, '♙', nil], [33, 32, '♟', nil, 32, 40, '♟', nil]) # => "48,32,♙.33,32,♟;32,40,♟"
+PortableMoveNotation.parse('48,32,♙.33,32,♟;32,40,♟') # => [[48, 32, "♙", nil], [33, 32, "♟", nil, 32, 40, "♟", nil]]
 ```
 
 ## License

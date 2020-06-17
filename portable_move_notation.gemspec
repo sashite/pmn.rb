@@ -14,9 +14,10 @@ Gem::Specification.new do |spec|
   spec.metadata = {
     'bug_tracker_uri' => 'https://github.com/sashite/portable_move_notation.rb/issues',
     'documentation_uri' => 'https://rubydoc.info/gems/portable_move_notation/index',
-    'source_code_uri' => 'https://github.com/sashite/portable_move_notation.rb',
-    'wiki_uri' => 'https://github.com/sashite/portable_move_notation.rb/wiki'
+    'source_code_uri' => 'https://github.com/sashite/portable_move_notation.rb'
   }
+
+  spec.add_dependency 'sashite-pan', '~> 1.0.0'
 
   spec.add_development_dependency 'awesome_print'
   spec.add_development_dependency 'bundler'
