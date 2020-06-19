@@ -2,10 +2,10 @@
 
 module PortableMoveNotation
   class Dumper
-    def self.call(*unserialized_moves)
-      unserialized_moves.map do |unserialized_move|
-        unserialized_actions = unserialized_move.each_slice(4)
-        ::Sashite::PAN::Dumper.call(*unserialized_actions)
+    def self.call(*moves)
+      moves.map do |move|
+        actions = move.each_slice(4)
+        ::Sashite::PAN::Dumper.call(*actions)
       end.join('.')
     end
   end

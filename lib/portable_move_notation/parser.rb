@@ -2,9 +2,10 @@
 
 module PortableMoveNotation
   class Parser
-    def self.call(serialized_moves_string)
-      serialized_moves_string.split('.').map do |serialized_actions_string|
-        ::Sashite::PAN::Parser.call(serialized_actions_string).flatten(1)
+    def self.call(pmn_string)
+      pmn_string.split('.').map do |pan_string|
+        ::Sashite::PAN::Parser.call(pan_string)
+                              .flatten(1)
       end
     end
   end

@@ -17,7 +17,7 @@ Gem::Specification.new do |spec|
     'source_code_uri' => 'https://github.com/sashite/portable_move_notation.rb'
   }
 
-  spec.add_dependency 'sashite-pan', '~> 1.0.0'
+  spec.add_dependency 'sashite-pan', '~> 1.1.0'
 
   spec.add_development_dependency 'awesome_print'
   spec.add_development_dependency 'bundler'
