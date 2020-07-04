@@ -12,9 +12,9 @@ Gem::Specification.new do |spec|
   spec.files        = Dir['LICENSE.md', 'README.md', 'lib/**/*']
 
   spec.metadata = {
-    'bug_tracker_uri' => 'https://github.com/sashite/portable_move_notation.rb/issues',
+    'bug_tracker_uri' => 'https://github.com/sashite/pmn.rb/issues',
     'documentation_uri' => 'https://rubydoc.info/gems/portable_move_notation/index',
-    'source_code_uri' => 'https://github.com/sashite/portable_move_notation.rb'
+    'source_code_uri' => 'https://github.com/sashite/pmn.rb'
   }
 
   spec.add_dependency 'sashite-pan', '~> 1.1.0'
