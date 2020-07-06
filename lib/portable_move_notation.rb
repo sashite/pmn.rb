@@ -6,8 +6,8 @@ module PortableMoveNotation
     Dumper.call(*moves)
   end
 
-  def self.parse(pmn_string)
-    Parser.call(pmn_string)
+  def self.parse(string)
+    Parser.call(string)
   end
 end
 

@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
+require_relative 'move'
+
 module PortableMoveNotation
-  class Dumper
+  # Dumper class
+  class Dumper < Move
     def self.call(*moves)
-      moves.map do |move|
-        actions = move.each_slice(4)
-        ::Sashite::PAN::Dumper.call(*actions)
-      end.join('.')
+      moves.map { |move| ::Sashite::PAN::Dumper.call(*move.each_slice(4)) }
+           .join(separator)
     end
   end
 end
