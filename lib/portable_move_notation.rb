@@ -1,15 +1,9 @@
 # frozen_string_literal: true
 
 # Portable Move Notation module
+#
+# @see https://sashite.dev/documents/pmn/1.0.0/
 module PortableMoveNotation
-  def self.dump(*moves)
-    Dumper.call(*moves)
-  end
-
-  def self.parse(string)
-    Parser.call(string)
-  end
 end
 
-require_relative 'portable_move_notation/dumper'
-require_relative 'portable_move_notation/parser'
+require_relative File.join("portable_move_notation", "move")
