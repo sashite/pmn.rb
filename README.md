@@ -226,7 +226,7 @@ After white plays a double pawn move from e2 (52) to e4 (36), black captures en 
 initial_move = PortableMoveNotation::Action.new(
   src_square: 52,
   dst_square: 36,
-  piece_name: "P",
+  piece_name: "P'",
   piece_hand: nil
 )
 
@@ -242,7 +242,7 @@ capture_action2 = PortableMoveNotation::Action.new(
   src_square: 36,
   dst_square: 44,
   piece_name: "p",
-  piece_hand: null
+  piece_hand: nil
 )
 
 en_passant_move = PortableMoveNotation::Move.new(capture_action1, capture_action2)

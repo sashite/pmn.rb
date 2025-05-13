@@ -243,17 +243,17 @@ raise "Expected piece_name '+P', got #{action.piece_name}" unless action.piece_n
 action = PortableMoveNotation::Action.new(
   src_square: 52,
   dst_square: 36,
-  piece_name: "P="
+  piece_name: "P'"
 )
-raise "Expected piece_name 'P=', got #{action.piece_name}" unless action.piece_name == "P="
+raise "Expected piece_name 'P'', got #{action.piece_name}" unless action.piece_name == "P'"
 
 # Piece with both prefix and suffix
 action = PortableMoveNotation::Action.new(
   src_square: 52,
   dst_square: 36,
-  piece_name: "+P="
+  piece_name: "+P'"
 )
-raise "Expected piece_name '+P=', got #{action.piece_name}" unless action.piece_name == "+P="
+raise "Expected piece_name '+P'', got #{action.piece_name}" unless action.piece_name == "+P'"
 
 # Lowercase piece
 action = PortableMoveNotation::Action.new(
@@ -262,5 +262,17 @@ action = PortableMoveNotation::Action.new(
   piece_name: "p"
 )
 raise "Expected piece_name 'p', got #{action.piece_name}" unless action.piece_name == "p"
+
+# Test invalid suffix (old format)
+begin
+  PortableMoveNotation::Action.new(
+    src_square: 52,
+    dst_square: 36,
+    piece_name: "P=" # No longer valid
+  )
+  raise "Expected ArgumentError for invalid suffix, but none was raised"
+rescue ArgumentError => e
+  raise "Wrong error message: #{e.message}" unless e.message.include?("Invalid piece_name format")
+end
 
 puts "All tests passed!"

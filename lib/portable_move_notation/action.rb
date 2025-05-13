@@ -24,6 +24,12 @@ module PortableMoveNotation
   # @see https://sashite.dev/documents/pmn/1.0.0/ PMN Specification
   # @see https://sashite.dev/documents/pnn/1.0.0/ PNN Specification for piece format
   class Action
+    # Regular expression pattern for validating PNN piece names
+    # Format: [prefix]letter[suffix]
+    # - prefix: optional '+' or '-'
+    # - letter: required 'a-z' or 'A-Z'
+    # - suffix: optional "'"
+    PIECE_NAME_PATTERN = /\A[-+]?[a-zA-Z][']?\z/
     # Validates a PMN action hash
     #
     # @param action_data [Hash] PMN action data to validate
@@ -141,7 +147,7 @@ module PortableMoveNotation
     # @param piece_name [Object] Piece name to validate
     # @raise [ArgumentError] if the format is invalid
     def validate_piece_name(piece_name)
-      return if piece_name.is_a?(::String) && piece_name.match?(/\A[-+]?[a-zA-Z][=<>]?\z/)
+      return if piece_name.is_a?(::String) && piece_name.match?(PIECE_NAME_PATTERN)
 
       raise ::ArgumentError, "Invalid piece_name format: #{piece_name}"
     end
