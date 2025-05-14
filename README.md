@@ -12,6 +12,7 @@
 PMN (Portable Move Notation) is a rule-agnostic JSON-based format for representing moves in abstract strategy board games. It provides a consistent representation system for game actions across both traditional and non-traditional board games, supporting arbitrary dimensions and hybrid configurations while maintaining neutrality toward game-specific rules.
 
 This gem implements the [PMN Specification v1.0.0](https://sashite.dev/documents/pmn/1.0.0/), providing a Ruby interface for:
+
 - Serializing game actions to PMN format
 - Parsing PMN data into structured Ruby objects
 - Validating PMN data according to the specification
