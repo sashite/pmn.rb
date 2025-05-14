@@ -1,62 +1,76 @@
 # frozen_string_literal: true
 
 module PortableMoveNotation
-  # Represents an atomic action in PMN format
+  # == Action
   #
-  # An Action is the fundamental unit of PMN, representing a single piece movement
-  # from a source square to a destination square, with optional capture information.
+  # An **Action** is the *atomic* unit of Portable Move Notation.  Each instance
+  # describes **one** deterministic transformation applied to either the board
+  # or the mover's reserve.
   #
-  # PMN actions consist of four primary components:
-  # - src_square: Source coordinate (or nil for drops)
-  # - dst_square: Destination coordinate (required)
-  # - piece_name: Identifier of the moving piece (required)
-  # - piece_hand: Identifier of any captured piece (or nil)
+  # | Field        | Meaning                                                                |
+  # |--------------|------------------------------------------------------------------------|
+  # | `src_square` | Integer index of the square *vacated* – or +nil+ when dropping         |
+  # | `dst_square` | Integer index of the square now **occupied** by {#piece_name}          |
+  # | `piece_name` | Post‑action identifier on `dst_square` (may contain prefix/suffix)     |
+  # | `piece_hand` | Bare letter that enters the mover's hand – or +nil+                    |
   #
-  # @example Basic piece movement
-  #   Action.new(src_square: 52, dst_square: 36, piece_name: "P")
+  # The implicit side‑effects are rule‑agnostic:
+  # * `src_square` (when not +nil+) becomes empty.
+  # * `dst_square` now contains {#piece_name}.
+  # * If {#piece_hand} is set, add exactly one such piece to the mover's reserve.
+  # * If `src_square` is +nil+, remove one unmodified copy of {#piece_name} from hand.
   #
-  # @example Piece drop (from outside the board)
-  #   Action.new(src_square: nil, dst_square: 27, piece_name: "p")
+  # === Examples
   #
-  # @example Capture with piece becoming available for dropping
-  #   Action.new(src_square: 33, dst_square: 24, piece_name: "+P", piece_hand: "R")
+  # @example Basic piece movement (Chess pawn e2 → e4)
+  #   PortableMoveNotation::Action.new(src_square: 52, dst_square: 36, piece_name: "P")
   #
-  # @see https://sashite.dev/documents/pmn/1.0.0/ PMN Specification
-  # @see https://sashite.dev/documents/pnn/1.0.0/ PNN Specification for piece format
+  # @example Drop from hand (Shogi pawn onto 27)
+  #   PortableMoveNotation::Action.new(src_square: nil, dst_square: 27, piece_name: "p")
+  #
+  # @example Capture with demotion (Bishop captures +p and acquires P in hand)
+  #   PortableMoveNotation::Action.new(src_square: 36, dst_square: 27, piece_name: "B", piece_hand: "P")
+  #
+  # @see https://sashite.dev/documents/pmn/ Portable Move Notation specification
+  # @see https://sashite.dev/documents/pnn/ Piece Name Notation specification
   class Action
-    # Regular expression pattern for validating PNN piece names
-    # Format: [prefix]letter[suffix]
-    # - prefix: optional '+' or '-'
-    # - letter: required 'a-z' or 'A-Z'
-    # - suffix: optional "'"
-    PIECE_NAME_PATTERN = /\A[-+]?[a-zA-Z][']?\z/
-    # Validates a PMN action hash
+    # Regular expression for validating piece identifiers as per PNN.
+    # Matches: optional '+'/ '-' prefix, a single ASCII letter, optional "'" suffix.
+    PIECE_NAME_PATTERN = /\A[-+]?[A-Za-z]['"]?\z/
+
+    # ------------------------------------------------------------------
+    # Class helpers
+    # ------------------------------------------------------------------
+
+    # Validates that *action_data* is a structurally correct PMN **action hash**.
+    # (Keys are expected to be *strings*.)
     #
-    # @param action_data [Hash] PMN action data to validate
-    # @return [Boolean] true if valid, false otherwise
+    # @param action_data [Hash] Raw PMN action hash.
+    # @return [Boolean] +true+ if the hash can be converted into a valid {Action}.
     def self.valid?(action_data)
       return false unless action_data.is_a?(::Hash)
       return false unless action_data.key?("dst_square") && action_data.key?("piece_name")
 
-      begin
-        # Use existing validation logic by attempting to create an instance
-        new(
-          src_square: action_data["src_square"],
-          dst_square: action_data["dst_square"],
-          piece_name: action_data["piece_name"],
-          piece_hand: action_data["piece_hand"]
-        )
-        true
-      rescue ::ArgumentError
-        false
-      end
+      new(
+        src_square: action_data["src_square"],
+        dst_square: action_data["dst_square"],
+        piece_name: action_data["piece_name"],
+        piece_hand: action_data["piece_hand"]
+      )
+      true
+    rescue ::ArgumentError
+      false
     end
 
-    # Creates an Action instance from parameters
+    # Builds an {Action} from keyword parameters.
     #
-    # @param params [Hash] Action parameters
-    # @return [Action] A new action instance
-    # @raise [KeyError] if required parameters are missing
+    # @param params [Hash] Keyword parameters.
+    # @option params [Integer, nil] :src_square Source coordinate, or +nil+ when dropping from hand.
+    # @option params [Integer] :dst_square Destination coordinate (required).
+    # @option params [String] :piece_name Post‑move piece identifier (required).
+    # @option params [String, nil] :piece_hand Captured piece letter entering hand.
+    # @return [Action]
+    # @raise [KeyError] If +:dst_square+ or +:piece_name+ is missing.
     def self.from_params(**params)
       new(
         src_square: params[:src_square],
@@ -66,31 +80,31 @@ module PortableMoveNotation
       )
     end
 
-    # The source coordinate of the action, or nil for drops
-    # @return [Integer, nil] Source square coordinate
+    # ------------------------------------------------------------------
+    # Attributes
+    # ------------------------------------------------------------------
+
+    # @return [Integer, nil] Source square (or +nil+ for drops)
     attr_reader :src_square
-
-    # The destination coordinate of the action
-    # @return [Integer] Destination square coordinate
+    # @return [Integer] Destination square
     attr_reader :dst_square
-
-    # The piece identifier in PNN format
-    # @return [String] Piece name
+    # @return [String] Post‑move piece identifier
     attr_reader :piece_name
-
-    # The identifier of any captured piece that becomes available for dropping, or nil
-    # @return [String, nil] Captured piece identifier
+    # @return [String, nil] Captured piece that enters hand, or +nil+
     attr_reader :piece_hand
 
-    # Initializes a new action
+    # ------------------------------------------------------------------
+    # Construction
+    # ------------------------------------------------------------------
+
+    # Instantiates a new {Action}.
     #
-    # @param src_square [Integer, nil] Source square (nil for placements from outside the board)
-    # @param dst_square [Integer] Destination square (required)
-    # @param piece_name [String] Piece identifier in PNN format (required)
-    # @param piece_hand [String, nil] Captured piece identifier that becomes droppable, or nil
-    # @raise [ArgumentError] if any validation fails
+    # @param dst_square [Integer] Destination coordinate.
+    # @param piece_name [String]  Post‑move piece identifier.
+    # @param src_square [Integer, nil] Source coordinate or +nil+.
+    # @param piece_hand [String, nil] Captured piece entering hand.
+    # @raise [ArgumentError] If any value fails validation.
     def initialize(dst_square:, piece_name:, src_square: nil, piece_hand: nil)
-      # Input validation
       validate_square(src_square) unless src_square.nil?
       validate_square(dst_square)
       validate_piece_name(piece_name)
@@ -104,9 +118,13 @@ module PortableMoveNotation
       freeze
     end
 
-    # Converts the action to a parameter hash
+    # ------------------------------------------------------------------
+    # Serialisation helpers
+    # ------------------------------------------------------------------
+
+    # Returns a **symbol‑keyed** parameter hash (useful for duplication).
     #
-    # @return [Hash] Parameter hash representation of the action
+    # @return [Hash]
     def to_params
       {
         src_square:,
@@ -116,11 +134,9 @@ module PortableMoveNotation
       }.compact
     end
 
-    # Converts the action to a PMN-compatible hash
+    # Returns a **string‑keyed** hash that conforms to the PMN JSON schema.
     #
-    # This creates a hash with string keys as required by the PMN JSON format
-    #
-    # @return [Hash] PMN-compatible hash representation
+    # @return [Hash]
     def to_h
       {
         "src_square" => src_square,
@@ -132,36 +148,34 @@ module PortableMoveNotation
 
     private
 
-    # Validates that a square coordinate is a non-negative integer
+    # Validates that *square* is a non‑negative integer.
     #
-    # @param square [Object] Value to validate
-    # @raise [ArgumentError] if the value is not a non-negative integer
+    # @param square [Object]
+    # @raise [ArgumentError] If invalid.
     def validate_square(square)
       return if square.is_a?(::Integer) && square >= 0
 
       raise ::ArgumentError, "Square must be a non-negative integer"
     end
 
-    # Validates the piece name format according to PNN specification
+    # Validates {#piece_name} format.
     #
-    # @param piece_name [Object] Piece name to validate
-    # @raise [ArgumentError] if the format is invalid
+    # @param piece_name [Object]
+    # @raise [ArgumentError] If invalid.
     def validate_piece_name(piece_name)
       return if piece_name.is_a?(::String) && piece_name.match?(PIECE_NAME_PATTERN)
 
-      raise ::ArgumentError, "Invalid piece_name format: #{piece_name}"
+      raise ::ArgumentError, "Invalid piece_name format: #{piece_name.inspect}"
     end
 
-    # Validates the piece hand format according to PNN specification
+    # Validates {#piece_hand} format.
     #
-    # Piece hand must be a single letter with no modifiers
-    #
-    # @param piece_hand [Object] Piece hand value to validate
-    # @raise [ArgumentError] if the format is invalid
+    # @param piece_hand [Object]
+    # @raise [ArgumentError] If invalid.
     def validate_piece_hand(piece_hand)
-      return if piece_hand.is_a?(::String) && piece_hand.match?(/\A[a-zA-Z]\z/)
+      return if piece_hand.is_a?(::String) && piece_hand.match?(/\A[A-Za-z]\z/)
 
-      raise ::ArgumentError, "Invalid piece_hand format: #{piece_hand}"
+      raise ::ArgumentError, "Invalid piece_hand format: #{piece_hand.inspect}"
     end
   end
 end

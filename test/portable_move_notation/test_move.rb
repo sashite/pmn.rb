@@ -159,9 +159,9 @@ raise "Expected piece_name to be 'P', got #{move.actions.first.piece_name}" unle
 
 # Test from_params with missing actions key
 begin
-  PortableMoveNotation::Move.from_params
-  raise "Expected KeyError but none was raised"
-rescue KeyError
+  PortableMoveNotation::Move.from_params(actions: nil)
+  raise "Expected ArgumentError but none was raised"
+rescue ArgumentError
   # This is the expected error
 end
 
