@@ -17,17 +17,6 @@ PMN expresses **state‑changing actions** without embedding game rules. Whether
 
 ---
 
-## Table of Contents
-
-* [Installation](#installation)
-* [Quick Start](#quick-start)
-* [Advanced Examples](#advanced-examples)
-* [Validation](#validation)
-* [License](#license)
-* [About Sashité](#about-sashité)
-
----
-
 ## Installation
 
 Add to your **Gemfile**:
