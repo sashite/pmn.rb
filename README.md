@@ -48,7 +48,7 @@ require "portable_move_notation" # provides the PortableMoveNotation namespace
 
 ## Quick Start
 
-Dump a single action (dropping a Shogi pawn on square 27):
+Dump a single action (dropping a Shogi pawn on square "27"):
 
 ```ruby
 require "portable_move_notation"
@@ -56,7 +56,7 @@ require "portable_move_notation"
 move = PortableMoveNotation::Move.new(
   PortableMoveNotation::Action.new(
     src_square: nil,
-    dst_square: 27,
+    dst_square: "27",
     piece_name: "p",
     piece_hand: nil
   )
@@ -70,7 +70,7 @@ Parse it back:
 
 ```ruby
 restored = PortableMoveNotation::Move.from_json(move.to_json)
-puts restored.actions.first.dst_square # => 27
+puts restored.actions.first.dst_square # => "27"
 ```
 
 ---
@@ -83,10 +83,10 @@ puts restored.actions.first.dst_square # => 27
 require "portable_move_notation"
 
 king = PortableMoveNotation::Action.new(
-  src_square: 60, dst_square: 62, piece_name: "K", piece_hand: nil
+  src_square: "e1", dst_square: "g1", piece_name: "K", piece_hand: nil
 )
 rook = PortableMoveNotation::Action.new(
-  src_square: 63, dst_square: 61, piece_name: "R", piece_hand: nil
+  src_square: "h1", dst_square: "f1", piece_name: "R", piece_hand: nil
 )
 
 puts PortableMoveNotation::Move.new(king, rook).to_json
@@ -103,8 +103,8 @@ puts PortableMoveNotation::Move.new(king, rook).to_json
 require "portable_move_notation"
 require "json"
 
-# Parse a simple JSON move with a pawn at square 27
-data = JSON.parse('[{ "dst_square" => 27, "piece_name" => "p" }]')
+# Parse a simple JSON move with a pawn at square "27"
+data = JSON.parse('[{ "dst_square" => "27", "piece_name" => "p" }]')
 puts PortableMoveNotation::Move.valid?(data) # => true
 ```
 
@@ -112,7 +112,7 @@ You can also validate single actions:
 
 ```ruby
 # Check if an individual action is valid
-action_data = { "dst_square" => 12, "piece_name" => "P" }
+action_data = { "dst_square" => "e4", "piece_name" => "P" }
 puts PortableMoveNotation::Action.valid?(action_data) # => true
 ```
 

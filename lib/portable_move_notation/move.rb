@@ -6,7 +6,7 @@ module PortableMoveNotation
   # == Move
   #
   # A **Move** is an *ordered list* of {Action} instances that, applied **in
-  # order**, realise a deterministic change of game state under Portable Move
+  # order**, realise a deterministic change of game state under Portable Move
   # Notation (PMN).  A move can be as small as a single pawn push or as large as
   # a compound fairy‐move that relocates several pieces at once.
   #
@@ -15,15 +15,15 @@ module PortableMoveNotation
   # given game is beyond its responsibility and must be enforced by an engine
   # or referee layer.
   #
-  # === Quick start
+  # === Quick start
   #
   # ```ruby
   # require "portable_move_notation"
   #
   # # Plain chess pawn move: e2 → e4
   # pawn = PortableMoveNotation::Action.new(
-  #   src_square: 52,
-  #   dst_square: 36,
+  #   src_square: "e2",
+  #   dst_square: "e4",
   #   piece_name: "P"
   # )
   #
@@ -32,23 +32,23 @@ module PortableMoveNotation
   # # => JSON representation of the move
   #
   # parsed = PortableMoveNotation::Move.from_json(move.to_json)
-  # parsed.actions.first.dst_square  # => 36
+  # parsed.actions.first.dst_square  # => "e4"
   # ```
   #
   # === Composite example (Chess kingside castling)
   #
   # ```ruby
   # king = PortableMoveNotation::Action.new(
-  #   src_square: 60, dst_square: 62, piece_name: "K"
+  #   src_square: "e1", dst_square: "g1", piece_name: "K"
   # )
   # rook = PortableMoveNotation::Action.new(
-  #   src_square: 63, dst_square: 61, piece_name: "R"
+  #   src_square: "h1", dst_square: "f1", piece_name: "R"
   # )
   #
   # castle = PortableMoveNotation::Move.new(king, rook)
   # ```
   #
-  # @see https://sashite.dev/documents/pmn/ Portable Move Notation specification
+  # @see https://sashite.dev/documents/pmn/ Portable Move Notation specification
   class Move
     # --------------------------------------------------------------------
     # Class helpers
@@ -63,7 +63,7 @@ module PortableMoveNotation
     # @return [Boolean] +true+ when every element passes {Action.valid?}.
     #
     # @example Validate PMN parsed from JSON
-    #   data = JSON.parse('[{"dst_square":27,"piece_name":"p"}]')
+    #   data = JSON.parse('[{"dst_square":"e7","piece_name":"p"}]')
     #   PortableMoveNotation::Move.valid?(data)  # => true
     def self.valid?(pmn_data)
       return false unless pmn_data.is_a?(::Array) && !pmn_data.empty?
@@ -79,7 +79,7 @@ module PortableMoveNotation
     # @raise [KeyError] If an action hash lacks required keys.
     #
     # @example
-    #   json = '[{"src_square":nil,"dst_square":27,"piece_name":"p"}]'
+    #   json = '[{"src_square":null,"dst_square":"e7","piece_name":"p"}]'
     #   PortableMoveNotation::Move.from_json(json)
     def self.from_json(json_string)
       from_pmn(::JSON.parse(json_string))
@@ -110,7 +110,7 @@ module PortableMoveNotation
     # @raise [KeyError] If +actions+ is missing.
     #
     # @example
-    #   Move.from_params(actions: [src_square: nil, dst_square: 27, piece_name: "p"])
+    #   Move.from_params(actions: [src_square: nil, dst_square: "e7", piece_name: "p"])
     def self.from_params(actions:)
       array = Array(actions).map do |obj|
         obj.is_a?(Action) ? obj : Action.from_params(**obj)

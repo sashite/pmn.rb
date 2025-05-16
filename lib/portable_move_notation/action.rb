@@ -3,16 +3,16 @@
 module PortableMoveNotation
   # == Action
   #
-  # An **Action** is the *atomic* unit of Portable Move Notation.  Each instance
+  # An **Action** is the *atomic* unit of Portable Move Notation.  Each instance
   # describes **one** deterministic transformation applied to either the board
   # or the mover's reserve.
   #
   # | Field        | Meaning                                                                |
   # |--------------|------------------------------------------------------------------------|
-  # | `src_square` | Integer index of the square *vacated* – or +nil+ when dropping         |
-  # | `dst_square` | Integer index of the square now **occupied** by {#piece_name}          |
+  # | `src_square` | String label of the square *vacated* – or +nil+ when dropping         |
+  # | `dst_square` | String label of the square now **occupied** by {#piece_name}          |
   # | `piece_name` | Post‑action identifier on `dst_square` (may contain prefix/suffix)     |
-  # | `piece_hand` | Bare letter that enters the mover's hand – or +nil+                    |
+  # | `piece_hand` | Bare letter that enters the mover's hand – or +nil+                    |
   #
   # The implicit side‑effects are rule‑agnostic:
   # * `src_square` (when not +nil+) becomes empty.
@@ -22,17 +22,17 @@ module PortableMoveNotation
   #
   # === Examples
   #
-  # @example Basic piece movement (Chess pawn e2 → e4)
-  #   PortableMoveNotation::Action.new(src_square: 52, dst_square: 36, piece_name: "P")
+  # @example Basic piece movement (Chess pawn e2 → e4)
+  #   PortableMoveNotation::Action.new(src_square: "e2", dst_square: "e4", piece_name: "P")
   #
   # @example Drop from hand (Shogi pawn onto 27)
-  #   PortableMoveNotation::Action.new(src_square: nil, dst_square: 27, piece_name: "p")
+  #   PortableMoveNotation::Action.new(src_square: nil, dst_square: "27", piece_name: "p")
   #
   # @example Capture with demotion (Bishop captures +p and acquires P in hand)
-  #   PortableMoveNotation::Action.new(src_square: 36, dst_square: 27, piece_name: "B", piece_hand: "P")
+  #   PortableMoveNotation::Action.new(src_square: "36", dst_square: "27", piece_name: "B", piece_hand: "P")
   #
-  # @see https://sashite.dev/documents/pmn/ Portable Move Notation specification
-  # @see https://sashite.dev/documents/pnn/ Piece Name Notation specification
+  # @see https://sashite.dev/documents/pmn/ Portable Move Notation specification
+  # @see https://sashite.dev/documents/pnn/ Piece Name Notation specification
   class Action
     # Regular expression for validating piece identifiers as per PNN.
     # Matches: optional '+'/ '-' prefix, a single ASCII letter, optional "'" suffix.
@@ -65,8 +65,8 @@ module PortableMoveNotation
     # Builds an {Action} from keyword parameters.
     #
     # @param params [Hash] Keyword parameters.
-    # @option params [Integer, nil] :src_square Source coordinate, or +nil+ when dropping from hand.
-    # @option params [Integer] :dst_square Destination coordinate (required).
+    # @option params [String, nil] :src_square Source coordinate, or +nil+ when dropping from hand.
+    # @option params [String] :dst_square Destination coordinate (required).
     # @option params [String] :piece_name Post‑move piece identifier (required).
     # @option params [String, nil] :piece_hand Captured piece letter entering hand.
     # @return [Action]
@@ -84,9 +84,9 @@ module PortableMoveNotation
     # Attributes
     # ------------------------------------------------------------------
 
-    # @return [Integer, nil] Source square (or +nil+ for drops)
+    # @return [String, nil] Source square (or +nil+ for drops)
     attr_reader :src_square
-    # @return [Integer] Destination square
+    # @return [String] Destination square
     attr_reader :dst_square
     # @return [String] Post‑move piece identifier
     attr_reader :piece_name
@@ -99,9 +99,9 @@ module PortableMoveNotation
 
     # Instantiates a new {Action}.
     #
-    # @param dst_square [Integer] Destination coordinate.
+    # @param dst_square [String] Destination coordinate.
     # @param piece_name [String]  Post‑move piece identifier.
-    # @param src_square [Integer, nil] Source coordinate or +nil+.
+    # @param src_square [String, nil] Source coordinate or +nil+.
     # @param piece_hand [String, nil] Captured piece entering hand.
     # @raise [ArgumentError] If any value fails validation.
     def initialize(dst_square:, piece_name:, src_square: nil, piece_hand: nil)
@@ -148,14 +148,14 @@ module PortableMoveNotation
 
     private
 
-    # Validates that *square* is a non‑negative integer.
+    # Validates that *square* is a non‑empty string.
     #
     # @param square [Object]
     # @raise [ArgumentError] If invalid.
     def validate_square(square)
-      return if square.is_a?(::Integer) && square >= 0
+      return if square.is_a?(::String) && !square.empty?
 
-      raise ::ArgumentError, "Square must be a non-negative integer"
+      raise ::ArgumentError, "Square must be a non-empty string"
     end
 
     # Validates {#piece_name} format.

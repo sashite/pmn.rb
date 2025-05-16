@@ -9,42 +9,42 @@ puts "Testing PortableMoveNotation::Move..."
 
 # Setup basic test actions
 pawn_action = PortableMoveNotation::Action.new(
-  src_square: 52,
-  dst_square: 36,
+  src_square: "e2",
+  dst_square: "e4",
   piece_name: "P",
   piece_hand: nil
 )
 
 king_action = PortableMoveNotation::Action.new(
-  src_square: 60,
-  dst_square: 62,
+  src_square: "e1",
+  dst_square: "g1",
   piece_name: "K",
   piece_hand: nil
 )
 
 rook_action = PortableMoveNotation::Action.new(
-  src_square: 63,
-  dst_square: 61,
+  src_square: "h1",
+  dst_square: "f1",
   piece_name: "R",
   piece_hand: nil
 )
 
 drop_action = PortableMoveNotation::Action.new(
   src_square: nil,
-  dst_square: 27,
+  dst_square: "27",
   piece_name: "p",
   piece_hand: nil
 )
 
 valid_pmn_array = [
-  { "src_square" => 52, "dst_square" => 36, "piece_name" => "P", "piece_hand" => nil }
+  { "src_square" => "e2", "dst_square" => "e4", "piece_name" => "P", "piece_hand" => nil }
 ]
 
 invalid_pmn_array = [
-  { "src_square" => 52 } # Missing dst_square and piece_name
+  { "src_square" => "e2" } # Missing dst_square and piece_name
 ]
 
-valid_json_string = '[{"src_square":52,"dst_square":36,"piece_name":"P","piece_hand":null}]'
+valid_json_string = '[{"src_square":"e2","dst_square":"e4","piece_name":"P","piece_hand":null}]'
 
 # Test initializing with a single action
 move = PortableMoveNotation::Move.new(pawn_action)
@@ -96,8 +96,12 @@ raise "Expected false for empty array, got #{result}" unless result == false
 move = PortableMoveNotation::Move.from_json(valid_json_string)
 raise "Expected Move instance" unless move.is_a?(PortableMoveNotation::Move)
 raise "Expected 1 action, got #{move.actions.size}" unless move.actions.size == 1
-raise "Expected src_square to be 52, got #{move.actions.first.src_square}" unless move.actions.first.src_square == 52
-raise "Expected dst_square to be 36, got #{move.actions.first.dst_square}" unless move.actions.first.dst_square == 36
+unless move.actions.first.src_square == "e2"
+  raise "Expected src_square to be 'e2', got #{move.actions.first.src_square}"
+end
+unless move.actions.first.dst_square == "e4"
+  raise "Expected dst_square to be 'e4', got #{move.actions.first.dst_square}"
+end
 raise "Expected piece_name to be 'P', got #{move.actions.first.piece_name}" unless move.actions.first.piece_name == "P"
 raise "Expected piece_hand to be nil, got #{move.actions.first.piece_hand}" unless move.actions.first.piece_hand.nil?
 
@@ -111,7 +115,7 @@ end
 
 # Test from_json with missing required fields
 begin
-  PortableMoveNotation::Move.from_json('[{"src_square":52}]')
+  PortableMoveNotation::Move.from_json('[{"src_square":"e2"}]')
   raise "Expected KeyError but none was raised"
 rescue KeyError
   # This is the expected error
@@ -121,8 +125,12 @@ end
 move = PortableMoveNotation::Move.from_pmn(valid_pmn_array)
 raise "Expected Move instance" unless move.is_a?(PortableMoveNotation::Move)
 raise "Expected 1 action, got #{move.actions.size}" unless move.actions.size == 1
-raise "Expected src_square to be 52, got #{move.actions.first.src_square}" unless move.actions.first.src_square == 52
-raise "Expected dst_square to be 36, got #{move.actions.first.dst_square}" unless move.actions.first.dst_square == 36
+unless move.actions.first.src_square == "e2"
+  raise "Expected src_square to be 'e2', got #{move.actions.first.src_square}"
+end
+unless move.actions.first.dst_square == "e4"
+  raise "Expected dst_square to be 'e4', got #{move.actions.first.dst_square}"
+end
 raise "Expected piece_name to be 'P', got #{move.actions.first.piece_name}" unless move.actions.first.piece_name == "P"
 raise "Expected piece_hand to be nil, got #{move.actions.first.piece_hand}" unless move.actions.first.piece_hand.nil?
 
@@ -144,8 +152,8 @@ raise "Expected action to match" unless move.actions.first == pawn_action
 params = {
   actions: [
     {
-      src_square: 52,
-      dst_square: 36,
+      src_square: "e2",
+      dst_square: "e4",
       piece_name: "P"
     }
   ]
@@ -153,8 +161,12 @@ params = {
 move = PortableMoveNotation::Move.from_params(**params)
 raise "Expected Move instance" unless move.is_a?(PortableMoveNotation::Move)
 raise "Expected 1 action, got #{move.actions.size}" unless move.actions.size == 1
-raise "Expected src_square to be 52, got #{move.actions.first.src_square}" unless move.actions.first.src_square == 52
-raise "Expected dst_square to be 36, got #{move.actions.first.dst_square}" unless move.actions.first.dst_square == 36
+unless move.actions.first.src_square == "e2"
+  raise "Expected src_square to be 'e2', got #{move.actions.first.src_square}"
+end
+unless move.actions.first.dst_square == "e4"
+  raise "Expected dst_square to be 'e4', got #{move.actions.first.dst_square}"
+end
 raise "Expected piece_name to be 'P', got #{move.actions.first.piece_name}" unless move.actions.first.piece_name == "P"
 
 # Test from_params with missing actions key
@@ -171,7 +183,7 @@ pmn = move.to_pmn
 raise "Expected Array, got #{pmn.class}" unless pmn.is_a?(Array)
 raise "Expected 1 item, got #{pmn.size}" unless pmn.size == 1
 
-expected = { "src_square" => 52, "dst_square" => 36, "piece_name" => "P", "piece_hand" => nil }
+expected = { "src_square" => "e2", "dst_square" => "e4", "piece_name" => "P", "piece_hand" => nil }
 raise "Expected #{expected}, got #{pmn.first}" unless pmn.first == expected
 
 # Test to_pmn with multiple actions
@@ -180,8 +192,8 @@ pmn = move.to_pmn
 raise "Expected Array, got #{pmn.class}" unless pmn.is_a?(Array)
 raise "Expected 2 items, got #{pmn.size}" unless pmn.size == 2
 
-expected_first = { "src_square" => 60, "dst_square" => 62, "piece_name" => "K", "piece_hand" => nil }
-expected_second = { "src_square" => 63, "dst_square" => 61, "piece_name" => "R", "piece_hand" => nil }
+expected_first = { "src_square" => "e1", "dst_square" => "g1", "piece_name" => "K", "piece_hand" => nil }
+expected_second = { "src_square" => "h1", "dst_square" => "f1", "piece_name" => "R", "piece_hand" => nil }
 raise "Expected #{expected_first}, got #{pmn.first}" unless pmn.first == expected_first
 raise "Expected #{expected_second}, got #{pmn.last}" unless pmn.last == expected_second
 
@@ -193,7 +205,7 @@ raise "Expected String, got #{json.class}" unless json.is_a?(String)
 parsed = JSON.parse(json)
 raise "Expected Array, got #{parsed.class}" unless parsed.is_a?(Array)
 raise "Expected 1 item, got #{parsed.size}" unless parsed.size == 1
-raise "Expected src_square 52, got #{parsed.first['src_square']}" unless parsed.first["src_square"] == 52
+raise "Expected src_square 'e2', got #{parsed.first['src_square']}" unless parsed.first["src_square"] == "e2"
 
 # Test JSON roundtrip
 move = PortableMoveNotation::Move.from_json(valid_json_string)
@@ -204,22 +216,22 @@ raise "Expected #{expected}, got #{actual}" unless expected == actual
 
 # Test chess en passant scenario
 pawn_move_action = PortableMoveNotation::Action.new(
-  src_square: 52,
-  dst_square: 36,
+  src_square: "e2",
+  dst_square: "e4",
   piece_name: "P",
   piece_hand: nil
 )
 
 capture_action1 = PortableMoveNotation::Action.new(
-  src_square: 35,
-  dst_square: 36,
+  src_square: "d4",
+  dst_square: "e3",
   piece_name: "p",
   piece_hand: nil
 )
 
 capture_action2 = PortableMoveNotation::Action.new(
-  src_square: 36,
-  dst_square: 44,
+  src_square: "e3",
+  dst_square: "e4",
   piece_name: "p",
   piece_hand: nil
 )
@@ -233,22 +245,22 @@ raise "Expected 2 actions, got #{en_passant_move.actions.size}" unless en_passan
 en_passant_json = en_passant_move.to_json
 parsed = JSON.parse(en_passant_json)
 raise "Expected 2 items, got #{parsed.size}" unless parsed.size == 2
-raise "Expected src_square 35, got #{parsed.first['src_square']}" unless parsed.first["src_square"] == 35
-raise "Expected dst_square 36, got #{parsed.first['dst_square']}" unless parsed.first["dst_square"] == 36
-raise "Expected src_square 36, got #{parsed.last['src_square']}" unless parsed.last["src_square"] == 36
-raise "Expected dst_square 44, got #{parsed.last['dst_square']}" unless parsed.last["dst_square"] == 44
+raise "Expected src_square 'd4', got #{parsed.first['src_square']}" unless parsed.first["src_square"] == "d4"
+raise "Expected dst_square 'e3', got #{parsed.first['dst_square']}" unless parsed.first["dst_square"] == "e3"
+raise "Expected src_square 'e3', got #{parsed.last['src_square']}" unless parsed.last["src_square"] == "e3"
+raise "Expected dst_square 'e4', got #{parsed.last['dst_square']}" unless parsed.last["dst_square"] == "e4"
 
 # Test shogi drop and promote scenario
 drop_move = PortableMoveNotation::Move.new(drop_action)
 raise "Expected 1 action, got #{drop_move.actions.size}" unless drop_move.actions.size == 1
 raise "Expected src_square to be nil" unless drop_move.actions.first.src_square.nil?
-unless drop_move.actions.first.dst_square == 27
-  raise "Expected dst_square to be 27, got #{drop_move.actions.first.dst_square}"
+unless drop_move.actions.first.dst_square == "27"
+  raise "Expected dst_square to be '27', got #{drop_move.actions.first.dst_square}"
 end
 
 promote_action = PortableMoveNotation::Action.new(
-  src_square: 27,
-  dst_square: 18,
+  src_square: "27",
+  dst_square: "18",
   piece_name: "+P",
   piece_hand: nil
 )
