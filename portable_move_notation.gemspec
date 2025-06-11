@@ -5,11 +5,14 @@ Gem::Specification.new do |spec|
   spec.version                = ::File.read("VERSION.semver").chomp
   spec.author                 = "Cyril Kato"
   spec.email                  = "contact@cyril.email"
-  spec.summary                = "A pure Ruby implementation of Portable Move Notation (PMN) for abstract strategy board games."
-  spec.description            = "Portable Move Notation (PMN) is a rule-agnostic, JSON-based format for representing moves " \
-                                "in abstract strategy board games. This gem provides a consistent Ruby interface for " \
-                                "serializing, deserializing, and validating actions across Chess, Shogi, Xiangqi, and " \
-                                "other traditional or non-traditional variants, focusing on deterministic state " \
+  spec.summary                = "A pure Ruby implementation of Portable Move Notation (PMN) v1.0.0 for abstract strategy board games."
+  spec.description            = "Portable Move Notation (PMN) v1.0.0 is a rule-agnostic, JSON-based format using arrays " \
+                                "to represent deterministic state-changing actions in abstract strategy board games. " \
+                                "This gem provides a consistent Ruby interface for serializing, deserializing, and " \
+                                "validating moves across Chess, Shogi, Xiangqi, and other traditional or " \
+                                "non-traditional variants. The v1.0.0 format uses simple 4-element arrays: " \
+                                "[source_square, destination_square, piece_name, captured_piece], making it " \
+                                "compact and language-agnostic while focusing on deterministic state " \
                                 "transformations independent of game-specific rules."
   spec.homepage               = "https://github.com/sashite/pmn.rb"
   spec.license                = "MIT"

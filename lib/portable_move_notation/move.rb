@@ -7,11 +7,14 @@ module PortableMoveNotation
   #
   # A **Move** is an *ordered list* of {Action} instances that, applied **in
   # order**, realise a deterministic change of game state under Portable Move
-  # Notation (PMN).  A move can be as small as a single pawn push or as large as
-  # a compound fairy‐move that relocates several pieces at once.
+  # Notation (PMN) v1.0.0. A move can be as small as a single pawn push or as
+  # large as a compound fairy‐move that relocates several pieces at once.
+  #
+  # PMN v1.0.0 uses an array-of-arrays format where each inner array represents
+  # a single action: `[source_square, destination_square, piece_name, captured_piece]`
   #
   # The class is deliberately **rule‑agnostic**: it guarantees only that the
-  # underlying data *matches the PMN schema*.  Whether the move is *legal* in a
+  # underlying data *matches the PMN schema*. Whether the move is *legal* in a
   # given game is beyond its responsibility and must be enforced by an engine
   # or referee layer.
   #
@@ -21,15 +24,10 @@ module PortableMoveNotation
   # require "portable_move_notation"
   #
   # # Plain chess pawn move: e2 → e4
-  # pawn = PortableMoveNotation::Action.new(
-  #   src_square: "e2",
-  #   dst_square: "e4",
-  #   piece_name: "P"
-  # )
-  #
+  # pawn = PortableMoveNotation::Action.new("e2", "e4", "P", nil)
   # move = PortableMoveNotation::Move.new(pawn)
   # puts move.to_json
-  # # => JSON representation of the move
+  # # => [["e2","e4","P",null]]
   #
   # parsed = PortableMoveNotation::Move.from_json(move.to_json)
   # parsed.actions.first.dst_square  # => "e4"
@@ -38,48 +36,42 @@ module PortableMoveNotation
   # === Composite example (Chess kingside castling)
   #
   # ```ruby
-  # king = PortableMoveNotation::Action.new(
-  #   src_square: "e1", dst_square: "g1", piece_name: "K"
-  # )
-  # rook = PortableMoveNotation::Action.new(
-  #   src_square: "h1", dst_square: "f1", piece_name: "R"
-  # )
-  #
+  # king = PortableMoveNotation::Action.new("e1", "g1", "K", nil)
+  # rook = PortableMoveNotation::Action.new("h1", "f1", "R", nil)
   # castle = PortableMoveNotation::Move.new(king, rook)
   # ```
   #
-  # @see https://sashite.dev/documents/pmn/ Portable Move Notation specification
+  # @see https://sashite.dev/documents/pmn/1.0.0/ Portable Move Notation specification
   class Move
     # --------------------------------------------------------------------
     # Class helpers
     # --------------------------------------------------------------------
 
-    # Validates that *pmn_data* is an **array of PMN action hashes**.
+    # Validates that *pmn_data* is an **array of PMN action arrays**.
     # The method does **not** instantiate {Action} objects on success; it merely
     # checks that each element *could* be turned into one.
     #
-    # @param pmn_data [Array<Hash>] Raw PMN structure (commonly the result of
-    #   `JSON.parse`).
+    # @param pmn_data [Array<Array>] Raw PMN structure (array of 4-element arrays).
     # @return [Boolean] +true+ when every element passes {Action.valid?}.
     #
     # @example Validate PMN parsed from JSON
-    #   data = JSON.parse('[{"dst_square":"e7","piece_name":"p"}]')
+    #   data = JSON.parse('[["e2","e4","P",null]]')
     #   PortableMoveNotation::Move.valid?(data)  # => true
     def self.valid?(pmn_data)
       return false unless pmn_data.is_a?(::Array) && !pmn_data.empty?
 
-      pmn_data.all? { |hash| Action.valid?(hash) }
+      pmn_data.all? { |action_array| Action.valid?(action_array) }
     end
 
     # Constructs a {Move} from its canonical **JSON** representation.
     #
-    # @param json_string [String] PMN‑formatted JSON.
+    # @param json_string [String] PMN‑formatted JSON (array of action arrays).
     # @return [Move]
     # @raise [JSON::ParserError] If +json_string+ is not valid JSON.
-    # @raise [KeyError] If an action hash lacks required keys.
+    # @raise [ArgumentError] If an action array is malformed.
     #
     # @example
-    #   json = '[{"src_square":null,"dst_square":"e7","piece_name":"p"}]'
+    #   json = '[["e2","e4","P",null]]'
     #   PortableMoveNotation::Move.from_json(json)
     def self.from_json(json_string)
       from_pmn(::JSON.parse(json_string))
@@ -87,35 +79,14 @@ module PortableMoveNotation
 
     # Constructs a {Move} from an *already parsed* PMN array.
     #
-    # @param pmn_array [Array<Hash>] PMN action hashes (string keys).
+    # @param pmn_array [Array<Array>] PMN action arrays (4-element arrays).
     # @return [Move]
-    # @raise [KeyError] If an action hash lacks required keys.
+    # @raise [ArgumentError] If an action array is malformed.
     def self.from_pmn(pmn_array)
-      actions = pmn_array.map do |hash|
-        Action.new(
-          src_square: hash["src_square"],
-          dst_square: hash.fetch("dst_square"),
-          piece_name: hash.fetch("piece_name"),
-          piece_hand: hash["piece_hand"]
-        )
+      actions = pmn_array.map do |action_array|
+        Action.from_array(action_array)
       end
       new(*actions)
-    end
-
-    # Constructs a {Move} from keyword parameters.
-    #
-    # @param actions [Array<Action, Hash>] One or more {Action} objects *or*
-    #   parameter hashes accepted by {Action.from_params}.
-    # @return [Move]
-    # @raise [KeyError] If +actions+ is missing.
-    #
-    # @example
-    #   Move.from_params(actions: [src_square: nil, dst_square: "e7", piece_name: "p"])
-    def self.from_params(actions:)
-      array = Array(actions).map do |obj|
-        obj.is_a?(Action) ? obj : Action.from_params(**obj)
-      end
-      new(*array)
     end
 
     # --------------------------------------------------------------------
@@ -139,18 +110,73 @@ module PortableMoveNotation
     # Serialisation helpers
     # --------------------------------------------------------------------
 
-    # Converts the move to an **array of PMN hashes** (string keys).
+    # Converts the move to an **array of PMN action arrays**.
+    # This is the canonical PMN v1.0.0 format.
     #
-    # @return [Array<Hash>]
+    # @return [Array<Array>] Array of 4-element action arrays
     def to_pmn
-      actions.map(&:to_h)
+      actions.map(&:to_a)
     end
 
-    # Converts the move to a **JSON string**.
+    # Alias for to_pmn for clarity
+    alias to_a to_pmn
+
+    # Converts the move to a **JSON string** following PMN v1.0.0 format.
     #
-    # @return [String]
+    # @return [String] JSON representation as array of action arrays
     def to_json(*_args)
       ::JSON.generate(to_pmn)
+    end
+
+    # --------------------------------------------------------------------
+    # Comparison and inspection
+    # --------------------------------------------------------------------
+
+    # Compare moves based on their PMN array representation
+    def ==(other)
+      other.is_a?(Move) && to_pmn == other.to_pmn
+    end
+
+    # Hash based on PMN array representation
+    def hash
+      to_pmn.hash
+    end
+
+    def eql?(other)
+      self == other
+    end
+
+    # Human-readable string representation
+    def inspect
+      "#<#{self.class.name} #{to_pmn.inspect}>"
+    end
+
+    def to_s
+      to_pmn.to_s
+    end
+
+    # --------------------------------------------------------------------
+    # Utility methods
+    # --------------------------------------------------------------------
+
+    # Number of actions in this move
+    def size
+      actions.size
+    end
+
+    # Check if move is empty (shouldn't happen with current validation)
+    def empty?
+      actions.empty?
+    end
+
+    # Iterate over actions
+    def each(&)
+      actions.each(&)
+    end
+
+    # Access individual actions by index
+    def [](index)
+      actions[index]
     end
 
     private

@@ -20,6 +20,8 @@ AllCops:
   
     - pkg/
   
+    - test/.DS_Store
+  
     - test.rb
     - config/**/*
     - tmp/**/*
