@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 
 require "bundler/setup"
-require "portable_move_notation"
+require "sashite/pmn"
 require "irb"
 
 IRB.start(__FILE__)
