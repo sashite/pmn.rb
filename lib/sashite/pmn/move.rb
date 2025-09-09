@@ -23,7 +23,7 @@ module Sashite
       # Create a Move from PMN elements (variadic only).
       #
       # @param pmn_elements [Array<String>] passed as individual args
-      # @raise [InvalidMoveError] if called with a single Array or if invalid
+      # @raise [Error::Move] if called with a single Array or if invalid
       #
       # @example
       #   Move.new("e2","e4","C:P")
@@ -31,7 +31,7 @@ module Sashite
       def initialize(*pmn_elements)
         # single-array form is intentionally not supported (entropy reduction)
         if pmn_elements.size == 1 && pmn_elements.first.is_a?(Array)
-          raise InvalidMoveError,
+          raise Error::Move,
                 'PMN must be passed as individual arguments, e.g. Move.new("e2","e4","C:P")'
         end
 
@@ -170,14 +170,14 @@ module Sashite
       # Validation ------------------------------------------------------------
 
       def validate_array!(array)
-        raise InvalidMoveError, "PMN must be an array, got #{array.class}" unless array.is_a?(Array)
-        raise InvalidMoveError, "PMN array cannot be empty" if array.empty?
+        raise Error::Move, "PMN must be an array, got #{array.class}" unless array.is_a?(Array)
+        raise Error::Move, "PMN array cannot be empty" if array.empty?
 
-        raise InvalidMoveError, "All PMN elements must be strings" unless array.all?(String)
+        raise Error::Move, "All PMN elements must be strings" unless array.all?(String)
 
         return if valid_length?(array)
 
-        raise InvalidMoveError, "Invalid PMN array length: #{array.size}"
+        raise Error::Move, "Invalid PMN array length: #{array.size}"
       end
 
       # Valid lengths: (size % 3 == 0) OR (size % 3 == 2), minimum 2.
@@ -204,21 +204,21 @@ module Sashite
             actions << Action.new(array[index], array[index + 1], array[index + 2])
             index += 3
           else
-            raise InvalidMoveError, "Invalid action group at index #{index}"
+            raise Error::Move, "Invalid action group at index #{index}"
           end
         end
 
         actions
-      rescue InvalidActionError => e
+      rescue Error::Action => e
         # Normalize action-level errors as move-level errors during parsing
-        raise InvalidMoveError, "Invalid action while parsing move at index #{index}: #{e.message}"
+        raise Error::Move, "Invalid action while parsing move at index #{index}: #{e.message}"
       end
 
       def validate_actions!
         actions.each_with_index do |action, i|
           next if action.valid?
 
-          raise InvalidMoveError, "Invalid action at position #{i}: #{action.inspect}"
+          raise Error::Move, "Invalid action at position #{i}: #{action.inspect}"
         end
       end
     end

@@ -27,12 +27,12 @@ module Sashite
     #
     # @param pmn_array [Array<String>] flat array of PMN elements
     # @return [Sashite::Pmn::Move]
-    # @raise [Sashite::Pmn::InvalidMoveError] if the array or any action is invalid
+    # @raise [Sashite::Pmn::Error::Move] if the array or any action is invalid
     #
     # @example
     #   Sashite::Pmn.parse(["e2","e4","C:P"]).actions.size # => 1
     def self.parse(pmn_array)
-      raise InvalidMoveError, "PMN must be an array, got #{pmn_array.class}" unless pmn_array.is_a?(Array)
+      raise Error::Move, "PMN must be an array, got #{pmn_array.class}" unless pmn_array.is_a?(Array)
 
       Move.new(*pmn_array)
     end

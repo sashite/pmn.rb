@@ -30,8 +30,8 @@ module Sashite
       # @param source [String] CELL or "*"
       # @param destination [String] CELL or "*"
       # @param piece [String, nil] QPI string (optional)
-      # @raise [InvalidLocationError] if source/destination are invalid
-      # @raise [InvalidPieceError] if piece is provided but invalid
+      # @raise [Error::Location] if source/destination are invalid
+      # @raise [Error::Piece] if piece is provided but invalid
       def initialize(source, destination, piece = nil)
         validate_source!(source)
         validate_destination!(destination)
@@ -115,7 +115,7 @@ module Sashite
       end
 
       # @param other [Object]
-      # @return [Boolean] equality by {source, destination, piece}
+      # @return [Boolean] equality by source, destination, piece
       def ==(other)
         return false unless other.is_a?(Action)
 
@@ -156,28 +156,28 @@ module Sashite
       # ---------- Internal validation helpers -------------------------------
 
       # @param src [String]
-      # @raise [InvalidLocationError]
+      # @raise [Error::Location]
       def validate_source!(src)
         return if valid_location?(src)
 
-        raise InvalidLocationError, "Invalid source location: #{src.inspect}"
+        raise Error::Location, "Invalid source location: #{src.inspect}"
       end
 
       # @param dst [String]
-      # @raise [InvalidLocationError]
+      # @raise [Error::Location]
       def validate_destination!(dst)
         return if valid_location?(dst)
 
-        raise InvalidLocationError, "Invalid destination location: #{dst.inspect}"
+        raise Error::Location, "Invalid destination location: #{dst.inspect}"
       end
 
       # @param qpi [String, nil]
-      # @raise [InvalidPieceError]
+      # @raise [Error::Piece]
       def validate_piece!(qpi)
         return if qpi.nil?
         return if Qpi.valid?(qpi)
 
-        raise InvalidPieceError, "Invalid piece QPI format: #{qpi.inspect}"
+        raise Error::Piece, "Invalid piece QPI format: #{qpi.inspect}"
       end
 
       # @param location [String]

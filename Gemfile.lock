@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    sashite-pmn (1.0.0)
+    sashite-pmn (1.1.0)
       sashite-cell (~> 2.0)
       sashite-hand (~> 1.0)
       sashite-qpi (~> 1.0)

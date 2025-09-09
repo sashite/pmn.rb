@@ -105,7 +105,7 @@ run_test("Move.new accepts variadic elements; array form is rejected") do
   raise "m2 should be valid" unless m2.valid?
 
   # Single-array syntax must raise (entropy reduction)
-  assert_raises(Pmn::InvalidMoveError) { Pmn::Move.new(["e2","e4","C:P"]) }
+  assert_raises(Pmn::Error::Move) { Pmn::Move.new(["e2","e4","C:P"]) }
 end
 
 # ------------------------- Move semantics & immutability -----------------------
@@ -231,24 +231,24 @@ end
 
 # ------------------------- Error handling specifics -----------------------------
 
-run_test("Action raises InvalidLocationError on bad locations") do
-  assert_raises(Pmn::InvalidLocationError) { Pmn::Action.new("ZZ99", "e4", "C:P") } # bad source
-  assert_raises(Pmn::InvalidLocationError) { Pmn::Action.new("e2", "??", "C:P") }   # bad destination
+run_test("Action raises Error::Location on bad locations") do
+  assert_raises(Pmn::Error::Location) { Pmn::Action.new("ZZ99", "e4", "C:P") } # bad source
+  assert_raises(Pmn::Error::Location) { Pmn::Action.new("e2", "??", "C:P") }   # bad destination
 end
 
-run_test("Action raises InvalidPieceError on bad QPI") do
-  assert_raises(Pmn::InvalidPieceError) { Pmn::Action.new("e2","e4","NotQPI") }
+run_test("Action raises Error::Piece on bad QPI") do
+  assert_raises(Pmn::Error::Piece) { Pmn::Action.new("e2","e4","NotQPI") }
 end
 
-run_test("Pmn.parse wraps action-level errors as InvalidMoveError") do
-  assert_raises(Pmn::InvalidMoveError) { Pmn.parse(["ZZ99","e4","C:P"]) }   # invalid source
-  assert_raises(Pmn::InvalidMoveError) { Pmn.parse(["e2","??","C:P"]) }     # invalid destination
-  assert_raises(Pmn::InvalidMoveError) { Pmn.parse(["e2","e4","NotQPI"]) }  # invalid piece
+run_test("Pmn.parse wraps action-level errors as Error::Move") do
+  assert_raises(Pmn::Error::Move) { Pmn.parse(["ZZ99","e4","C:P"]) }   # invalid source
+  assert_raises(Pmn::Error::Move) { Pmn.parse(["e2","??","C:P"]) }     # invalid destination
+  assert_raises(Pmn::Error::Move) { Pmn.parse(["e2","e4","NotQPI"]) }  # invalid piece
 end
 
 run_test("Pmn.parse raises on invalid PMN arrays and non-arrays") do
-  assert_raises(Pmn::InvalidMoveError) { Pmn.parse(["e2"]) }         # incomplete
-  assert_raises(Pmn::InvalidMoveError) { Pmn.parse("not an array") } # wrong type
+  assert_raises(Pmn::Error::Move) { Pmn.parse(["e2"]) }         # incomplete
+  assert_raises(Pmn::Error::Move) { Pmn.parse("not an array") } # wrong type
 end
 
 # ------------------------- Module helpers --------------------------------------
